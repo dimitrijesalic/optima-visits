@@ -22,6 +22,8 @@ export async function GET(req: Request) {
 
     const statusFilter = searchParams.get('status')
     const plannedVisitDateFilter = searchParams.get('plannedVisitDate')
+    const dateFromFilter = searchParams.get('dateFrom')
+    const dateToFilter = searchParams.get('dateTo')
     const businessPartnerFilter = searchParams.get('businessPartner')
     const page = Number.parseInt(searchParams.get('page') || '1', 10)
     const pageSize = 10
@@ -38,7 +40,15 @@ export async function GET(req: Request) {
       whereClause.status = statusFilter
     }
 
-    if (plannedVisitDateFilter) {
+    if (dateFromFilter || dateToFilter) {
+      whereClause.plannedVisitDate = {}
+      if (dateFromFilter) {
+        whereClause.plannedVisitDate.gte = dateFromFilter
+      }
+      if (dateToFilter) {
+        whereClause.plannedVisitDate.lte = dateToFilter
+      }
+    } else if (plannedVisitDateFilter) {
       whereClause.plannedVisitDate = {
         contains: plannedVisitDateFilter,
         mode: 'insensitive',

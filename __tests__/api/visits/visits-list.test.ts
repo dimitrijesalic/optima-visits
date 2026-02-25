@@ -173,6 +173,82 @@ describe('GET /api/visits', () => {
     expect(body.data).toHaveLength(1)
   })
 
+  it('filters by dateFrom only (gte)', async () => {
+    mockGetUser.mockResolvedValue({ user: mockAdminUser })
+
+    await GET(makeRequest('?dateFrom=2026-02-01'))
+
+    expect(mockFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          plannedVisitDate: { gte: '2026-02-01' },
+        }),
+      })
+    )
+  })
+
+  it('filters by dateTo only (lte)', async () => {
+    mockGetUser.mockResolvedValue({ user: mockAdminUser })
+
+    await GET(makeRequest('?dateTo=2026-02-28'))
+
+    expect(mockFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          plannedVisitDate: { lte: '2026-02-28' },
+        }),
+      })
+    )
+  })
+
+  it('filters by dateFrom and dateTo together (gte + lte)', async () => {
+    mockGetUser.mockResolvedValue({ user: mockAdminUser })
+
+    await GET(makeRequest('?dateFrom=2026-02-01&dateTo=2026-02-28'))
+
+    expect(mockFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          plannedVisitDate: { gte: '2026-02-01', lte: '2026-02-28' },
+        }),
+      })
+    )
+  })
+
+  it('date range takes priority over plannedVisitDate', async () => {
+    mockGetUser.mockResolvedValue({ user: mockAdminUser })
+
+    await GET(
+      makeRequest(
+        '?plannedVisitDate=2026-02-15&dateFrom=2026-02-01&dateTo=2026-02-28'
+      )
+    )
+
+    expect(mockFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          plannedVisitDate: { gte: '2026-02-01', lte: '2026-02-28' },
+        }),
+      })
+    )
+  })
+
+  it('combines date range with status and userId filters', async () => {
+    mockGetUser.mockResolvedValue({ user: mockRegularUser })
+
+    await GET(makeRequest('?status=DONE&dateFrom=2026-01-01&dateTo=2026-02-28'))
+
+    expect(mockFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          userId: mockRegularUser.id,
+          status: 'DONE',
+          plannedVisitDate: { gte: '2026-01-01', lte: '2026-02-28' },
+        }),
+      })
+    )
+  })
+
   it('returns 400 when an error is thrown', async () => {
     mockGetUser.mockRejectedValue(new Error('DB error'))
 
