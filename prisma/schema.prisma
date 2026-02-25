@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum VisitStatus {
+  PENDING
+  CANCELED
+  DONE
+}
+
+model User {
+  id                String    @id @default(uuid()) @db.Uuid
+  createdAt         DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt         DateTime  @default(now()) @db.Timestamp(6)
+  email             String    @unique
+  emailVerified     DateTime?
+  firstName         String
+  lastName          String?
+  role              Role      @default(USER)
+  password          String
+  isPasswordChanged Boolean   @default(false)
+  accounts          Account[]
+  sessions          Session[]
+  visits            Visit[]
+}
+
+model Account {
+  id                String   @id @default(uuid()) @db.Uuid
+  createdAt         DateTime @default(now()) @db.Timestamp(6)
+  updatedAt         DateTime @default(now()) @db.Timestamp(6)
+  userId            String   @db.Uuid
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(uuid()) @db.Uuid
+  createdAt    DateTime @default(now()) @db.Timestamp(6)
+  updatedAt    DateTime @default(now()) @db.Timestamp(6)
+  sessionToken String   @unique
+  userId       String   @db.Uuid
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Visit {
+  id                   String      @id @default(uuid()) @db.Uuid
+  createdAt            DateTime    @default(now()) @db.Timestamp(6)
+  updatedAt            DateTime    @default(now()) @db.Timestamp(6)
+  status               VisitStatus @default(PENDING)
+  plannedTopic         String?
+  realisedTopic        String?
+  plannedVisitDate     String?
+  plannedVisitTime     String?
+  businessPartner      String?
+  plannedVisitDuration String?
+  note                 String?
+  grade                String?
+  userId               String      @db.Uuid
+  user                 User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
