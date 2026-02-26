@@ -25,6 +25,7 @@ export async function GET(req: Request) {
     const dateFromFilter = searchParams.get('dateFrom')
     const dateToFilter = searchParams.get('dateTo')
     const businessPartnerFilter = searchParams.get('businessPartner')
+    const sortOrder = searchParams.get('sort') === 'asc' ? 'asc' : 'desc'
     const page = Number.parseInt(searchParams.get('page') || '1', 10)
     const pageSize = 10
     const skip = (page - 1) * pageSize
@@ -37,7 +38,11 @@ export async function GET(req: Request) {
     }
 
     if (statusFilter) {
-      whereClause.status = statusFilter
+      if (statusFilter.includes(',')) {
+        whereClause.status = { in: statusFilter.split(',') }
+      } else {
+        whereClause.status = statusFilter
+      }
     }
 
     if (dateFromFilter || dateToFilter) {
@@ -75,9 +80,10 @@ export async function GET(req: Request) {
           },
         },
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: [
+        { plannedVisitDate: sortOrder },
+        { plannedVisitTime: sortOrder },
+      ],
       skip,
       take: pageSize,
     })

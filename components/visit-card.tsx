@@ -19,6 +19,7 @@ import type { Visit } from '@/src/types/visit'
 interface VisitCardProps {
   visit: Visit
   variant: 'upcoming' | 'previous'
+  onClick?: (visit: Visit) => void
 }
 
 const statusLabels: Record<string, string> = {
@@ -27,9 +28,12 @@ const statusLabels: Record<string, string> = {
   CANCELED: 'Otkazano',
 }
 
-export function VisitCard({ visit, variant }: VisitCardProps) {
+export function VisitCard({ visit, variant, onClick }: VisitCardProps) {
   return (
-    <Card className="shadow-sm hover:shadow-md transition-shadow">
+    <Card
+      className={`shadow-sm hover:shadow-md transition-shadow ${onClick ? 'cursor-pointer' : ''}`}
+      onClick={onClick ? () => onClick(visit) : undefined}
+    >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <CardTitle className="text-base font-semibold flex items-center gap-2">
@@ -37,7 +41,13 @@ export function VisitCard({ visit, variant }: VisitCardProps) {
             {visit.businessPartner || 'Bez partnera'}
           </CardTitle>
           <Badge
-            variant={visit.status === 'DONE' ? 'default' : 'secondary'}
+            variant={
+              visit.status === 'DONE'
+                ? 'default'
+                : visit.status === 'CANCELED'
+                  ? 'destructive'
+                  : 'secondary'
+            }
           >
             {statusLabels[visit.status] || visit.status}
           </Badge>
@@ -73,7 +83,7 @@ export function VisitCard({ visit, variant }: VisitCardProps) {
           </div>
         )}
 
-        {variant === 'previous' && visit.realisedTopic && (
+        {variant === 'previous' && visit.status === 'DONE' && visit.realisedTopic && (
           <div className="flex items-start gap-2">
             <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
             <div>
@@ -83,20 +93,20 @@ export function VisitCard({ visit, variant }: VisitCardProps) {
           </div>
         )}
 
-        {variant === 'previous' && visit.note && (
+        {variant === 'previous' && visit.status === 'DONE' && visit.grade && (
+          <div className="flex items-center gap-2">
+            <Star className="h-4 w-4 text-muted-foreground" />
+            <span>Ocena: {visit.grade}</span>
+          </div>
+        )}
+
+        {variant === 'previous' && visit.status === 'CANCELED' && visit.note && (
           <div className="flex items-start gap-2">
             <StickyNote className="h-4 w-4 text-muted-foreground mt-0.5" />
             <div>
               <span className="text-muted-foreground">Napomena: </span>
               <span>{visit.note}</span>
             </div>
-          </div>
-        )}
-
-        {variant === 'previous' && visit.grade && (
-          <div className="flex items-center gap-2">
-            <Star className="h-4 w-4 text-muted-foreground" />
-            <span>Ocena: {visit.grade}</span>
           </div>
         )}
       </CardContent>

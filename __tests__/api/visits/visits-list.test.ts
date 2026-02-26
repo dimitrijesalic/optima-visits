@@ -94,6 +94,20 @@ describe('GET /api/visits', () => {
     )
   })
 
+  it('filters by multiple comma-separated statuses', async () => {
+    mockGetUser.mockResolvedValue({ user: mockAdminUser })
+
+    await GET(makeRequest('?status=DONE,CANCELED'))
+
+    expect(mockFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          status: { in: ['DONE', 'CANCELED'] },
+        }),
+      })
+    )
+  })
+
   it('filters by plannedVisitDate with case-insensitive contains', async () => {
     mockGetUser.mockResolvedValue({ user: mockAdminUser })
 

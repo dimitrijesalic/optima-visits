@@ -20,10 +20,11 @@ export default function PreviousVisitsPage() {
     queryKey: ['visits', 'previous', page, dateFrom, dateTo],
     queryFn: () =>
       fetchVisits({
-        status: 'DONE',
+        status: 'DONE,CANCELED',
         page,
         dateFrom,
         dateTo,
+        sort: 'desc',
       }),
   })
 
