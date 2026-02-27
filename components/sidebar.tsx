@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
+import Image from 'next/image'
 import { Menu, LogOut, CalendarClock, History } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -34,8 +35,8 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-6">
-        <h1 className="text-xl font-bold text-primary">Optima</h1>
+      <div className="p-4">
+        <Image src="/optima-logo.png" alt="Optima" width={140} height={60} priority />
       </div>
       <Separator />
 
@@ -96,7 +97,7 @@ export function Sidebar() {
               <SidebarContent onNavigate={() => setOpen(false)} />
             </SheetContent>
           </Sheet>
-          <span className="ml-3 font-semibold text-primary">Optima</span>
+          <Image src="/optima-logo.png" alt="Optima" width={100} height={44} priority />
         </div>
         <div className="h-14" />
       </>

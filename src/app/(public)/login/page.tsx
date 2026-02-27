@@ -6,6 +6,7 @@ import { signIn } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { loginSchema, type LoginFormData } from '@/src/schemas/login-schema'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -52,7 +53,9 @@ export default function LoginPage() {
   return (
     <Card className="shadow-lg">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl text-center text-primary">Optima</CardTitle>
+        <div className="flex justify-center">
+          <Image src="/optima-logo.png" alt="Optima" width={180} height={80} priority />
+        </div>
         <p className="text-sm text-muted-foreground text-center">
           Prijavite se na svoj nalog
         </p>
